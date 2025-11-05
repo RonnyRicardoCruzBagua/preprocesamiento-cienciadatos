@@ -7,3 +7,12 @@ versiones y la colaboración en proyectos de Ciencia de Datos. Además,
 implementar un preprocesamiento completo de datasets usando
 Pandas, incluyendo la gestión de valores nulos, normalización,
 codificación de variables categóricas y eliminación de duplicados.
+
+
+preprocesamiento-cienciadatos/
+│
+├── data/ # Conjuntos de datos en bruto o procesados
+├── notebooks/ # Notebooks de Jupyter para análisis y limpieza
+├── scripts/ # Archivos Python para automatizar el preprocesamiento
+├── docs/ # Documentación del proyecto
+└── README.md # Descripción general del proyecto
