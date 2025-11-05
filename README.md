@@ -1,4 +1,4 @@
-# preprocesamiento-cienciadatos
+# Preprocesamiento-cienciadatos
 
 - Objetivo de la actividad:
 
