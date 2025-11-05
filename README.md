@@ -15,10 +15,11 @@ Para este proyecto se va a usar una version de python la cual es: python 3.12.3
 Se va utilizar la siguiente estructura para el uso de las carpetas en
 este proyecto.
 
-# Carpeta Principal:
+--> Carpeta Principal:
+
 preprocesamiento-cienciadatos
 
-# Sub_Carpetas
+--> Sub_Carpetas:
 
 data/ Conjuntos de datos en bruto o procesados
 
