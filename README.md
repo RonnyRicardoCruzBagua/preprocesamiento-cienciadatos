@@ -7,6 +7,7 @@ versiones y la colaboración en proyectos de Ciencia de Datos. Además,
 implementar un preprocesamiento completo de datasets usando
 Pandas, incluyendo la gestión de valores nulos, normalización,
 codificación de variables categóricas y eliminación de duplicados.
+Se va a usar una version de python la cual es: python 3.12.3
 
 - Estructura básica de carpetas:
 
