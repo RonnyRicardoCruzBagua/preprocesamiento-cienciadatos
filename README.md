@@ -14,7 +14,7 @@ Se va utilizar la siguiente estructura para el uso de las carpetas en
 este proyecto.
 
 # Carpeta Principal:
-preprocesamiento-cienciadatos/
+preprocesamiento-cienciadatos
 
 # Sub_Carpetas
 
