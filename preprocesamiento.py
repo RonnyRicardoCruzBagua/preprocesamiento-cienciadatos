@@ -1,79 +1,147 @@
-# preprocesamiento.py
+"""
+preprocesamiento.py
+
+Módulo de preprocesamiento de datos para proyectos de Ciencia de Datos.
+Incluye funciones para limpieza, transformación y normalización de datasets.
+"""
+
 import pandas as pd
-import os
+import numpy as np
+from sklearn.preprocessing import MinMaxScaler, LabelEncoder
+
 
 def cargar_datos(ruta):
-    """Carga un dataset desde un archivo CSV.
-    
-    Args:
-        ruta (str): Ruta al archivo CSV
-    
-    Returns:
-        DataFrame: Dataset cargado
-        
-    Raises:
-        FileNotFoundError: Si el archivo no existe
-        pd.errors.EmptyDataError: Si el archivo está vacío
     """
-    if not os.path.exists(ruta):
-        raise FileNotFoundError(f"El archivo {ruta} no existe")
+    Carga un archivo CSV como DataFrame de pandas.
+
+    Parámetros:
+        ruta (str): Ruta del archivo CSV.
+
+    Retorna:
+        DataFrame con los datos cargados.
+    """
     try:
-        return pd.read_csv(ruta)
-    except pd.errors.EmptyDataError:
-        raise pd.errors.EmptyDataError("El archivo CSV está vacío")
+        df = pd.read_csv(ruta)
+        print(f"✅ Datos cargados correctamente desde {ruta}")
+        return df
+    except FileNotFoundError:
+        print(f"❌ Error: El archivo {ruta} no existe.")
+        return None
+
 
 def limpiar_datos(df):
-    """Elimina valores nulos y duplicados.
-    
-    Args:
-        df (DataFrame): Dataset a limpiar
-    
-    Returns:
-        DataFrame: Dataset limpio
     """
-    if not isinstance(df, pd.DataFrame):
-        raise TypeError("El argumento debe ser un DataFrame de pandas")
-    df_limpio = df.copy()
-    df_limpio = df_limpio.dropna()
-    df_limpio = df_limpio.drop_duplicates()
-    return df_limpio
+    Elimina valores nulos y duplicados del DataFrame.
+
+    Parámetros:
+        df (DataFrame): Conjunto de datos original.
+
+    Retorna:
+        DataFrame limpio.
+    """
+    inicial = len(df)
+    df = df.dropna()
+    df = df.drop_duplicates()
+    print(f"🧹 Se eliminaron {inicial - len(df)} filas con valores nulos o duplicados.")
+    return df
+
+
+def detectar_outliers(df, columna):
+    """
+    Detecta outliers usando el método del rango intercuartílico (IQR).
+
+    Parámetros:
+        df (DataFrame): Dataset original.
+        columna (str): Nombre de la columna numérica.
+
+    Retorna:
+        Índices de las filas que contienen outliers.
+    """
+    Q1 = df[columna].quantile(0.25)
+    Q3 = df[columna].quantile(0.75)
+    IQR = Q3 - Q1
+    outliers = df[(df[columna] < (Q1 - 1.5 * IQR)) | (df[columna] > (Q3 + 1.5 * IQR))].index
+    print(f"🚨 Se detectaron {len(outliers)} outliers en la columna '{columna}'.")
+    return outliers
+
+
+def eliminar_outliers(df, columna):
+    """
+    Elimina outliers de una columna numérica usando el método IQR.
+
+    Parámetros:
+        df (DataFrame): Dataset original.
+        columna (str): Columna donde se eliminarán los outliers.
+
+    Retorna:
+        DataFrame sin outliers.
+    """
+    outliers = detectar_outliers(df, columna)
+    df_sin_outliers = df.drop(outliers)
+    print(f"✅ Se eliminaron {len(outliers)} outliers de la columna '{columna}'.")
+    return df_sin_outliers
+
+
+def codificar_categoricas(df):
+    """
+    Codifica columnas categóricas usando LabelEncoder.
+
+    Parámetros:
+        df (DataFrame): Dataset original.
+
+    Retorna:
+        DataFrame con variables categóricas codificadas.
+    """
+    le = LabelEncoder()
+    for col in df.select_dtypes(include=["object"]).columns:
+        df[col] = le.fit_transform(df[col])
+        print(f"🔤 Columna '{col}' codificada correctamente.")
+    return df
+
 
 def normalizar_datos(df):
-    """Normaliza columnas numéricas entre 0 y 1.
-    
-    Args:
-        df (DataFrame): Dataset a normalizar
-    
-    Returns:
-        DataFrame: Dataset normalizado
-        
-    Raises:
-        TypeError: Si el argumento no es un DataFrame
-        ValueError: Si no hay columnas numéricas para normalizar
     """
-    if not isinstance(df, pd.DataFrame):
-        raise TypeError("El argumento debe ser un DataFrame de pandas")
-        
-    df_norm = df.copy()
-    columnas_numericas = df_norm.select_dtypes(include=['float64', 'int64']).columns
-    
-    if len(columnas_numericas) == 0:
-        raise ValueError("El DataFrame no contiene columnas numéricas para normalizar")
-        
-    from sklearn.preprocessing import MinMaxScaler
-    scaler = MinMaxScaler()
-    df_norm[columnas_numericas] = scaler.fit_transform(df_norm[columnas_numericas])
-    return df_norm
+    Normaliza columnas numéricas entre 0 y 1 con MinMaxScaler.
 
+    Parámetros:
+        df (DataFrame): Dataset con columnas numéricas.
+
+    Retorna:
+        DataFrame con valores normalizados.
+    """
+    scaler = MinMaxScaler()
+    columnas_numericas = df.select_dtypes(include=[np.number]).columns
+    df[columnas_numericas] = scaler.fit_transform(df[columnas_numericas])
+    print(f"📊 Columnas numéricas normalizadas correctamente.")
+    return df
+
+
+def guardar_datos(df, ruta_salida="data/datos_procesados.csv"):
+    """
+    Guarda el DataFrame procesado en un archivo CSV.
+
+    Parámetros:
+        df (DataFrame): Dataset final.
+        ruta_salida (str): Ruta donde se guardará el archivo CSV.
+    """
+    df.to_csv(ruta_salida, index=False)
+    print(f"💾 Datos procesados guardados en {ruta_salida}")
+
+
+# ==========================================================
+# Ejemplo de flujo completo
+# ==========================================================
 if __name__ == "__main__":
-    print("Funciones de preprocesamiento listas para usar.")
-    # Ejemplo de uso:
-    try:
-        # Cargar datos (comenta o descomenta según necesites probar)
-        # df = cargar_datos("ruta_a_tu_archivo.csv")
-        # df_limpio = limpiar_datos(df)
-        # df_normalizado = normalizar_datos(df_limpio)
-        print("Procesamiento completado exitosamente")
-    except Exception as e:
-        print(f"Error durante el procesamiento: {str(e)}")
-        
+    print("🔧 Iniciando proceso de preprocesamiento de datos...")
+
+    ruta = "data/dataset.csv"  # Ejemplo de ruta
+    df = cargar_datos(ruta)
+
+    if df is not None:
+        df = limpiar_datos(df)
+        df = eliminar_outliers(df, df.select_dtypes(include=[np.number]).columns[0])
+        df = codificar_categoricas(df)
+        df = normalizar_datos(df)
+        guardar_datos(df)
+
+    print("✅ Proceso de preprocesamiento completado con éxito.")
