@@ -34,25 +34,23 @@ jobs:
 
       - name: Ejecutar script de preprocesamiento (sanity check)
         run: |
-          # Si no existe dataset, creamos un CSV de ejemplo para evitar fallo
           if [ ! -f data/dataset.csv ]; then
             mkdir -p data
-            python <<EOF
-
+            python -c "
 import pandas as pd
 import numpy as np
 
 # Crear datos de ejemplo
 df = pd.DataFrame({
-    "edad": [25, 30, 45, 22, 36],
-    "ingresos": [2000, 3200, 5000, 1500, 4000],
-    "ciudad": ["A", "B", "A", "C", "B"]
+    'edad': [25, 30, 45, 22, 36],
+    'ingresos': [2000, 3200, 5000, 1500, 4000],
+    'ciudad': ['A', 'B', 'A', 'C', 'B']
 })
 
 # Guardar el CSV
-df.to_csv("data/dataset.csv", index=False)
-print("CSV de ejemplo creado: data/dataset.csv")
-EOF
+df.to_csv('data/dataset.csv', index=False)
+print('CSV de ejemplo creado: data/dataset.csv')
+            "
           fi
 
           # Verificar que el archivo existe
