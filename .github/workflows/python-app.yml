@@ -1,6 +1,5 @@
 name: Python CI - Preprocesamiento
 
-# Ejecutar cuando haya push o pull_request hacia main
 on:
   push:
     branches: [ main ]
@@ -32,32 +31,15 @@ jobs:
           pip --version
           pip show pandas scikit-learn || true
 
-      - name: Ejecutar script de preprocesamiento (sanity check)
+      - name: Crear directorio de datos y dataset de ejemplo
         run: |
-          if [ ! -f data/dataset.csv ]; then
-            mkdir -p data
-            python -c "
-import pandas as pd
-import numpy as np
+          mkdir -p data
+          python -c "import pandas as pd; df = pd.DataFrame({'edad': [25, 30, 45, 22, 36], 'ingresos': [2000, 3200, 5000, 1500, 4000], 'ciudad': ['A', 'B', 'A', 'C', 'B']}); df.to_csv('data/dataset.csv', index=False); print('CSV de ejemplo creado: data/dataset.csv')"
 
-# Crear datos de ejemplo
-df = pd.DataFrame({
-    'edad': [25, 30, 45, 22, 36],
-    'ingresos': [2000, 3200, 5000, 1500, 4000],
-    'ciudad': ['A', 'B', 'A', 'C', 'B']
-})
-
-# Guardar el CSV
-df.to_csv('data/dataset.csv', index=False)
-print('CSV de ejemplo creado: data/dataset.csv')
-            "
-          fi
-
-          # Verificar que el archivo existe
+      - name: Verificar archivo y ejecutar script
+        run: |
           if [ ! -f data/dataset.csv ]; then
             echo "Error: No se pudo crear el archivo dataset.csv"
             exit 1
           fi
-
-          # Ejecutar el script; el script debe terminar sin errores
           python preprocesamiento.py
