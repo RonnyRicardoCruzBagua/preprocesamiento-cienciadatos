@@ -1,0 +1,65 @@
+name: Python CI - Preprocesamiento
+
+# Ejecutar cuando haya push o pull_request hacia main
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    name: Ejecutar checks básicos
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout del repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Python 3.12.3
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.12.3"
+
+      - name: Instalar dependencias
+        run: |
+          python -m pip install --upgrade pip
+          pip install pandas scikit-learn
+
+      - name: Mostrar versión de Python e instalación
+        run: |
+          python --version
+          pip --version
+          pip show pandas scikit-learn || true
+
+      - name: Ejecutar script de preprocesamiento (sanity check)
+        run: |
+          # Si no existe dataset, creamos un CSV de ejemplo para evitar fallo
+          if [ ! -f data/dataset.csv ]; then
+            mkdir -p data
+            python <<EOF
+
+import pandas as pd
+import numpy as np
+
+# Crear datos de ejemplo
+df = pd.DataFrame({
+    "edad": [25, 30, 45, 22, 36],
+    "ingresos": [2000, 3200, 5000, 1500, 4000],
+    "ciudad": ["A", "B", "A", "C", "B"]
+})
+
+# Guardar el CSV
+df.to_csv("data/dataset.csv", index=False)
+print("CSV de ejemplo creado: data/dataset.csv")
+EOF
+          fi
+
+          # Verificar que el archivo existe
+          if [ ! -f data/dataset.csv ]; then
+            echo "Error: No se pudo crear el archivo dataset.csv"
+            exit 1
+          fi
+
+          # Ejecutar el script; el script debe terminar sin errores
+          python preprocesamiento.py
